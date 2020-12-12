@@ -23,7 +23,14 @@ In general, verifiers won't encounter standalone VCs; they're going to be wrappe
 - VC Data Model
     - [Validity checks](https://www.w3.org/TR/vc-data-model/#validity-checks)
     - [Validation](https://www.w3.org/TR/vc-data-model/#validation)
-- [vc-http-api](https://w3c-ccg.github.io/vc-http-api/)
+- vc-http-api
+    - [Plugfest verifier test suite]https://github.com/w3c-ccg/vc-http-api/tree/master/packages/plugfest-2020#verifier
+    - [vc-http-api spec](https://w3c-ccg.github.io/vc-http-api/)
+    - other related issues
+        - https://github.com/w3c-ccg/vc-http-api/issues/55
+        - https://github.com/w3c-ccg/vc-http-api/issues/59
+        - https://github.com/w3c-ccg/vc-http-api/issues/57
+
 
 ## Verification Overview
 
