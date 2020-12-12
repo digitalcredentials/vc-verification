@@ -2,13 +2,13 @@
  <head>
   <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
   <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
-  <title>Your Spec Title</title>
+  <title>Verifiable Credential Verification</title>
   <meta content="w3c/CG-DRAFT" name="w3c-status">
   <link href="https://www.w3.org/StyleSheets/TR/2016/cg-draft" rel="stylesheet">
   <link href="https://www.w3.org/2008/site/images/favicon.ico" rel="icon">
   <meta content="Bikeshed version c5172e83, updated Fri Nov 20 15:35:20 2020 -0800" name="generator">
   <link href="Your spec url" rel="canonical">
-  <meta content="e7d17baee3092554b547cd6f51675652d3c4bbdc" name="document-revision">
+  <meta content="7452407f4066aba27eaf285d6e4f9baa5e2ed8cb" name="document-revision">
 <style>/* style-autolinks */
 
 .css.css, .property.property, .descriptor.descriptor {
@@ -395,7 +395,7 @@ dfn > a.self-link::before      { content: "#"; }
  <body class="h-entry">
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
-   <h1 class="p-name no-ref" id="title">Your Spec Title</h1>
+   <h1 class="p-name no-ref" id="title">Verifiable Credential Verification</h1>
    <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2020-12-12">12 December 2020</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
@@ -423,7 +423,24 @@ dfn > a.self-link::before      { content: "#"; }
   <nav data-fill-with="table-of-contents" id="toc">
    <h2 class="no-num no-toc no-ref" id="contents">Table of Contents</h2>
    <ol class="toc" role="directory">
-    <li><a href="#intro"><span class="secno">1</span> <span class="content">Introduction</span></a>
+    <li>
+     <a href="#intro"><span class="secno">1</span> <span class="content">Introduction</span></a>
+     <ol class="toc">
+      <li><a href="#related"><span class="secno">1.1</span> <span class="content">Related</span></a>
+      <li>
+       <a href="#verification-overview"><span class="secno">1.2</span> <span class="content">Verification Overview</span></a>
+       <ol class="toc">
+        <li><a href="#verify-presentation"><span class="secno">1.2.1</span> <span class="content">Verify Presentation</span></a>
+        <li>
+         <a href="#verify-credential-s"><span class="secno">1.2.2</span> <span class="content">Verify Credential(s)</span></a>
+         <ol class="toc">
+          <li><a href="#generic-vc-verification-validation"><span class="secno">1.2.2.1</span> <span class="content">Generic VC verification/validation</span></a>
+          <li><a href="#app-specific-business-logic-validation"><span class="secno">1.2.2.2</span> <span class="content">App-specific / Business Logic Validation</span></a>
+          <li><a href="#grey-area-did-and-key-revocation"><span class="secno">1.2.2.3</span> <span class="content">Grey area (DID and key revocation)</span></a>
+         </ol>
+        <li><a href="#additional-notes"><span class="secno">1.2.3</span> <span class="content">Additional Notes</span></a>
+       </ol>
+     </ol>
     <li>
      <a href="#w3c-conformance"><span class="secno"></span> <span class="content">Conformance</span></a>
      <ol class="toc">
@@ -439,7 +456,100 @@ dfn > a.self-link::before      { content: "#"; }
   </nav>
   <main>
    <h2 class="heading settled" data-level="1" id="intro"><span class="secno">1. </span><span class="content">Introduction</span><a class="self-link" href="#intro"></a></h2>
-   <p>Introduction here.</p>
+   <p>This describes the process of verifying Verifiable Credentials (VCs) and Verifiable Presentations (VPs).</p>
+   <p>In general, verifiers won’t encounter standalone VCs; they’re going to be wrapped in VPs. Wrapping a VC in a VP serves several important goals.</p>
+   <ol>
+    <li data-md>
+     <p>It prevents a class of common replay attacks (by requiring the inclusion of `domain` and `challenge` fields) -- the verifier knows that this VP was created _in response to a particular challenge_, and created just for the use of this verifier.</p>
+    <li data-md>
+     <p>depending on the use case, if a VP is signed, it can serve to help identify the _holder_, the entity that’s handing over this VC. This can be important in many use cases where the person handing over a credential has to be the person to whom it was issued in the first place.</p>
+   </ol>
+   <h3 class="heading settled" data-level="1.1" id="related"><span class="secno">1.1. </span><span class="content">Related</span><a class="self-link" href="#related"></a></h3>
+   <ul>
+    <li data-md>
+     <p>VC Data Model</p>
+     <ul>
+      <li data-md>
+       <p>[Validity checks](https://www.w3.org/TR/vc-data-model/#validity-checks)</p>
+      <li data-md>
+       <p>[Validation](https://www.w3.org/TR/vc-data-model/#validation)</p>
+     </ul>
+    <li data-md>
+     <p>[vc-http-api](https://w3c-ccg.github.io/vc-http-api/)</p>
+   </ul>
+   <h3 class="heading settled" data-level="1.2" id="verification-overview"><span class="secno">1.2. </span><span class="content">Verification Overview</span><a class="self-link" href="#verification-overview"></a></h3>
+   <ol>
+    <li data-md>
+     <p>Verify the Verifiable Presentation</p>
+    <li data-md>
+     <p>For each Verifiable Credential in the Verifiable Presentation, verify the Verifiable Credential</p>
+   </ol>
+   <h4 class="heading settled" data-level="1.2.1" id="verify-presentation"><span class="secno">1.2.1. </span><span class="content">Verify Presentation</span><a class="self-link" href="#verify-presentation"></a></h4>
+   <ol>
+    <li data-md>
+     <p>make sure it’s well-formed, according to the VC Data Model spec</p>
+    <li data-md>
+     <p>make sure the `domain` and `challenge` values are ones the verifier was expecting</p>
+    <li data-md>
+     <p>if the VP is signed, verify the signature</p>
+   </ol>
+   <h4 class="heading settled" data-level="1.2.2" id="verify-credential-s"><span class="secno">1.2.2. </span><span class="content">Verify Credential(s)</span><a class="self-link" href="#verify-credential-s"></a></h4>
+   <p>Another helpful way of thinking about the verification process is to divide it into generic VC validation (which will be handled by a VC library), and use-case-specific verification (where you apply the business logic of your particular domain) that needs to be done by your application.</p>
+   <h5 class="heading settled" data-level="1.2.2.1" id="generic-vc-verification-validation"><span class="secno">1.2.2.1. </span><span class="content">Generic VC verification/validation</span><a class="self-link" href="#generic-vc-verification-validation"></a></h5>
+   <p>*Handled by any VC library*</p>
+   <ol>
+    <li data-md>
+     <p>Check that it’s a well-formed VC (according to the VC Data Model spec)</p>
+     <ul>
+      <li data-md>
+       <p>all the required fields present, etc.</p>
+     </ul>
+    <li data-md>
+     <p>Check the <a class="property" data-link-type="propdesc">expiration</a> and 'not before this date' fields.</p>
+    <li data-md>
+     <p>Verify signature. This involves:</p>
+     <ul>
+      <li data-md>
+       <p>a. Cryptographic signature verification (indicates the credential has not been tampered with)</p>
+      <li data-md>
+       <p>b. Resolving the issuer DID (it needs to be resolvable)</p>
+      <li data-md>
+       <p>c. Check to make sure that the keys the VC was signed by are actually authorized for the purposes of signing.</p>
+     </ul>
+   </ol>
+   <h5 class="heading settled" data-level="1.2.2.2" id="app-specific-business-logic-validation"><span class="secno">1.2.2.2. </span><span class="content">App-specific / Business Logic Validation</span><a class="self-link" href="#app-specific-business-logic-validation"></a></h5>
+   <p>These steps are not standardized at this point, but it’s assumed that a verifier app will do these as well.</p>
+   <ol>
+    <li data-md>
+     <p>Check the issuer DID against an allow-list (that’s our [Issuer registry](https://github.com/digitalcredentials/docs/blob/main/identity/issuer_registry.md) that is trusted by this particular verifier.</p>
+    <li data-md>
+     <p>Perform any other app-specific or domain-specific validation.</p>
+   </ol>
+   <h5 class="heading settled" data-level="1.2.2.3" id="grey-area-did-and-key-revocation"><span class="secno">1.2.2.3. </span><span class="content">Grey area (DID and key revocation)</span><a class="self-link" href="#grey-area-did-and-key-revocation"></a></h5>
+    This is logic that should theoretically be standardized / be common across various DIDs and VCs, but currently.. is not. 
+   <ol>
+    <li data-md>
+     <p>Check to make sure the signing keys are not marked revoked in the DID document (or have not been removed).</p>
+     <ul>
+      <li data-md>
+       <p>If the keys _are_ currently revoked, try and determine whether they were valid at the time the VC was issued, and whether to accept it. (This is very much usecase/threat-model specific).</p>
+      <li data-md>
+       <p>Different DID methods and Key types have different ways of marking key expiration/revocation.</p>
+     </ul>
+    <li data-md>
+     <p>Check to make sure the issuer DID has not been revoked.</p>
+     <ul>
+      <li data-md>
+       <p>Although this sounds standard, it’ll very much depend on the DID method. Some DID Resolver libraries will automatically check DID revocation during resolution. Otherwise, this will need to be done in the verification app, since the VC library is unlikely to perform this step automatically.</p>
+     </ul>
+    <li data-md>
+     <p>Check the VC identifier against the appropriate revocation method / revocation registry. Again, this should theoretically be done by the VC library, but since this is a very early stage / developing area, but currently VC libraries may not actually do this.</p>
+   </ol>
+   <h4 class="heading settled" data-level="1.2.3" id="additional-notes"><span class="secno">1.2.3. </span><span class="content">Additional Notes</span><a class="self-link" href="#additional-notes"></a></h4>
+   <ul>
+    <li data-md>
+     <p>Expired/revoked keys are out of scope for DID spec v1, so it’s up to the did method to implement it</p>
+   </ul>
   </main>
   <div data-fill-with="conformance">
    <h2 class="no-ref no-num heading settled" id="w3c-conformance"><span class="content">Conformance</span><a class="self-link" href="#w3c-conformance"></a></h2>
